@@ -1,0 +1,33 @@
+mode_211
+enable_trace
+establish_context
+card_connect
+select -AID a000000003000000
+#select -AID A000000151000000
+open_sc -security 3 -keyind 0 -keyver 1 -mac_key 404142434445464748494a4b4c4d4e4f -enc_key 404142434445464748494a4b4c4d4e4f -kek_key 404142434445464748494a4b4c4d4e4f -scp 2 -scpimpl 21 // Open secure channel
+
+# 刪除wallet load file
+#delete -AID 77616C6C65745061636B6574
+
+#刪除SD
+#send_apdu -sc 1 -APDU 80E400000B4F09A00000000353504101
+
+
+# create SD
+install_for_install -pkgAID A0000000035350 -AID A000000003535041 -instAID A00000000353504101 -priv 128 -instParam 45
+select -AID A00000000353504101
+open_sc -security 3 -keyind 0 -keyver 0 -mac_key 404142434445464748494a4b4c4d4e4f -enc_key 404142434445464748494a4b4c4d4e4f -kek_key 404142434445464748494a4b4c4d4e4f -scp 2 -scpimpl 21 // Open secure channel
+# put SD Key(add new key->新增加key version 1)
+put_sc_key -keyver 0 -newkeyver 1 -mac_key 112233445566778899aabbccddeeff22 -enc_key 112233445566778899aabbccddeeff11 -kek_key 112233445566778899aabbccddeeff33 // add new key
+
+
+# 安裝wallet
+select -AID a000000003000000
+open_sc -security 3 -keyind 0 -keyver 1 -mac_key 404142434445464748494a4b4c4d4e4f -enc_key 404142434445464748494a4b4c4d4e4f -kek_key 404142434445464748494a4b4c4d4e4f -scp 2 -scpimpl 21 // Open secure channel
+install_for_load -pkgAID 77616C6C65745061636B6574 -sdAID A00000000353504101
+load -file wallet.cap
+install_for_install -pkgAID 77616C6C65745061636B6574 -AID 77616C6C6574 -instAID 77616C6C6574 -priv 2 -instParam 00
+
+
+card_disconnect
+release_context
